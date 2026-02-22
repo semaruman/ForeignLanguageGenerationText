@@ -10,7 +10,7 @@ namespace ForeignLanguageGenerationText.Areas.User.Controllers
     [Route("{area}/{action}")]
     public class HomeController : Controller
     {
-        public UserModel currentUser = new UserModel();
+        public static UserModel currentUser = new UserModel();
 
         [Route("")]
         public IActionResult Index()
@@ -69,6 +69,12 @@ namespace ForeignLanguageGenerationText.Areas.User.Controllers
 
         public IActionResult SuccessAuthorization()
         {
+            return View();
+        }
+
+        public IActionResult LogoutUser()
+        {
+            currentUser = new UserModel();
             return View();
         }
     }

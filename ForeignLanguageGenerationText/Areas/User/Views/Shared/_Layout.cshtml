@@ -8,6 +8,14 @@
 <body>
     <header>
         <a asp-area="User" asp-controller="Home" asp-action="Index">Главная</a>
+        @if (HomeController.currentUser.UserName == string.Empty)
+        {
+            <a asp-area="User" asp-controller="Home" asp-action="Authorization">Войти в профиль</a>
+        }
+        else
+        {
+            <a asp-area="User" asp-controller="Home" asp-action="LogoutUser">Выйти из профиля</a>
+        }
     </header>
     <div>
         @RenderBody()
