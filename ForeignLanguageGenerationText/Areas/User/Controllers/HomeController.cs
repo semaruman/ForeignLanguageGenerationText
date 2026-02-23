@@ -1,12 +1,12 @@
 ﻿using CodeCareer.Areas.User.Models;
 using ForeignLanguageGenerationText.Areas.User.Models;
+using ForeignLanguageGenerationText.Areas.User.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ForeignLanguageGenerationText.Areas.User.Controllers
 {
     [Area("User")]
-    [Route("")]
-    [Route("{area}")]
+    [Route("{action}")]
     [Route("{area}/{action}")]
     public class HomeController : Controller
     {
@@ -76,6 +76,29 @@ namespace ForeignLanguageGenerationText.Areas.User.Controllers
         {
             currentUser = new UserModel();
             return View();
+        }
+
+        [HttpGet]
+        public IActionResult AddLearnedWord()
+        {
+            if (currentUser.UserName != string.Empty)
+            {
+                return View(new WordViewModel());
+            }
+            else
+            {
+                return RedirectToAction("Authorization");
+            }
+        }
+
+        [HttpPost]
+        public IActionResult AddLearnedWord(WordViewModel word)
+        {
+            if (ModelState.IsValid)
+            {
+                currentUser.LearnedWords.Add(word.Word);
+            }
+            return View(new WordViewModel());
         }
     }
 }
