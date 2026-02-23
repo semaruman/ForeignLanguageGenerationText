@@ -1,34 +1,57 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using System;
+using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
-namespace ForeignLanguageGenerationText.Areas.User.Models
+public class DeepSeekClient
 {
-    public class DeepSeekClient
+    private readonly HttpClient _httpClient;
+    private readonly string _apiKey;
+    private readonly string _apiUrl = "https://api.deepseek.com/v1/chat/completions";
+
+    public DeepSeekClient(string apiKey)
     {
-        private string apiKey = "sk-a81f83989f67442ca87dd7b2de0ab39e";
-        public async Task<string> AskDeepSeek(string message)
+        _apiKey = apiKey;
+        _httpClient = new HttpClient();
+        _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_apiKey}");
+    }
+
+    public async Task<string> SendToDeepSeekAsync(string userMessage)
+    {
+        try
         {
-            using (var client = new HttpClient())
+            var requestBody = new
             {
-                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
-
-                var request = new
+                model = "deepseek-chat",
+                messages = new[]
                 {
-                    model = "deepseek-chat",
-                    messages = new[] { new { role = "user", content = message } }
-                };
+                    new { role = "user", content = userMessage }
+                },
+                temperature = 0.7,
+                stream = false
+            };
 
-                var content = new StringContent(
-                    Newtonsoft.Json.JsonConvert.SerializeObject(request),
-                    Encoding.UTF8,
-                    "application/json");
+            string jsonRequest = Newtonsoft.Json.JsonConvert.SerializeObject(requestBody);
+            var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
 
-                var response = await client.PostAsync("https://api.deepseek.com/v1/chat/completions", content);
-                var jsonResponse = await response.Content.ReadAsStringAsync();
+            HttpResponseMessage response = await _httpClient.PostAsync(_apiUrl, content);
 
-                var result = JObject.Parse(jsonResponse);
-                return result["choices"]?[0]?["message"]?["content"]?.ToString() ?? "Нет ответа";
-            }
+            string jsonResponse = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Response: {jsonResponse}"); // Для отладки
+
+            response.EnsureSuccessStatusCode();
+
+            JObject result = JObject.Parse(jsonResponse);
+            return result["choices"][0]["message"]["content"].ToString();
+        }
+        catch (HttpRequestException ex)
+        {
+            return $"Ошибка HTTP: {ex.Message}";
+        }
+        catch (Exception ex)
+        {
+            return $"Ошибка: {ex.Message}";
         }
     }
 }

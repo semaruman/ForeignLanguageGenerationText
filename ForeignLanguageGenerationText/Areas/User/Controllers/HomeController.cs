@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Threading.Tasks;
 using CodeCareer.Areas.User.Models;
 using ForeignLanguageGenerationText.Areas.User.Models;
 using ForeignLanguageGenerationText.Areas.User.ViewModels;
@@ -104,7 +105,7 @@ namespace ForeignLanguageGenerationText.Areas.User.Controllers
         }
 
         [HttpGet]
-        public IActionResult GenerateTexts()
+        public async Task<IActionResult> GenerateTexts()
         {
             StringBuilder promt = new StringBuilder( "Сгенерируй текст на английском языке из следующих слов: ");
             
@@ -113,8 +114,8 @@ namespace ForeignLanguageGenerationText.Areas.User.Controllers
                 promt.Append(word + ", ");
             }
 
-            DeepSeekClient deepSeekClient = new DeepSeekClient();
-            string deepSeekResponse = deepSeekClient.AskDeepSeek(promt.ToString()).ToString();
+            DeepSeekClient deepSeekClient = new DeepSeekClient("sk-a81f83989f67442ca87dd7b2de0ab39e");
+            string deepSeekResponse = await deepSeekClient.SendToDeepSeekAsync(promt.ToString());
 
             PromtViewModel promtViewModel = new PromtViewModel(deepSeekResponse);
 
