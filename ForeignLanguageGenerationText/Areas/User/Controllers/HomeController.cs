@@ -1,7 +1,9 @@
-﻿using CodeCareer.Areas.User.Models;
+﻿using System.Text;
+using CodeCareer.Areas.User.Models;
 using ForeignLanguageGenerationText.Areas.User.Models;
 using ForeignLanguageGenerationText.Areas.User.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 
 namespace ForeignLanguageGenerationText.Areas.User.Controllers
 {
@@ -92,13 +94,31 @@ namespace ForeignLanguageGenerationText.Areas.User.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddLearnedWord(WordViewModel word)
+        public IActionResult AddLearnedWord(WordViewModel learnedWord)
         {
             if (ModelState.IsValid)
             {
-                currentUser.LearnedWords.Add(word.Word);
+                currentUser.LearnedWords.Add(learnedWord.Word);
             }
             return View(new WordViewModel());
         }
+
+        [HttpGet]
+        public IActionResult GenerateTexts()
+        {
+            StringBuilder promt = new StringBuilder( "Сгенерируй текст на английском языке из следующих слов: ");
+            
+            foreach (string word in currentUser.LearnedWords)
+            {
+                promt.Append(word + ", ");
+            }
+
+            DeepSeekClient deepSeekClient = new DeepSeekClient();
+            string deepSeekResponse = deepSeekClient.AskDeepSeek(promt.ToString()).ToString();
+
+            PromtViewModel promtViewModel = new PromtViewModel(deepSeekResponse);
+
+            return  View(promtViewModel);
+        }        
     }
 }

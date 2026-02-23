@@ -1,8 +1,10 @@
 ﻿@model WordViewModel
 
 <h2>Введите слово</h2>
-<form asp-area="User" asp-controller="Home" asp-action="AddLearnedWord">
+<form asp-area="User" asp-controller="Home" asp-action="AddLearnedWord" method="post">
 	<input asp-for="Word"/>
+	<span asp-validation-for="Word"></span>
+
 	<button type="submit">Добавить</button>
 </form>
 <a asp-area="User" asp-controller="Home" asp-action="Index">Перестать добавлять слова</a>
